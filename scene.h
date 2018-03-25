@@ -87,7 +87,7 @@ Object *Scene::intersectScene(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
 void Scene::set_board()
 {
     glm::vec3 mat_ambient = glm::vec3(0.5, 0.5, 0.5);
-    glm::vec3 mat_diffuse = glm::vec3(0.5, 0.5, 0.5);
+    glm::vec3 mat_diffuse = glm::vec3(1.0, 1.0, 1.0);
     glm::vec3 mat_specular = glm::vec3(1.0, 1.0, 1.0);
     float shineness = 16;
     float reflectance = 0.6;
