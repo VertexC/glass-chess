@@ -57,12 +57,12 @@ glm::vec3 phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object *obj)
     // I = global_ambient + local_ambient + f_decay(diffuse + specular)
 
     // global ambient
-    glm::vec3 ga = scene->global_ambient * obj->reflectance;
+    glm::vec3 ga = scene->global_ambient * obj->mat_ambient;
     // local ambient
     glm::vec3 la = scene->light_ambient * obj->mat_ambient;
 
     // glm::vec3 to light
-    glm::vec3 l = q - scene->light_position;
+    glm::vec3 l = scene->light_position - q;
     float distance = glm::length(l);
     l = glm::normalize(l);
 
@@ -74,18 +74,18 @@ glm::vec3 phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object *obj)
 
     // parameter for diffuse and specular
     float decay = scene->decay_a + scene->decay_b * distance + scene->decay_c * pow(distance, 2);
-    float nl = max(glm::dot(surf_norm, l), 0);
+    float nl = max(glm::dot(surf_norm, l), 0.0);
 
     float theta = glm::dot(surf_norm, l);
 
-    glm::vec3 r = surf_norm - l;
+    glm::vec3 r = 2 * theta * surf_norm - l;
     r = glm::normalize(r);
 
-    float rv = max(glm::dot(r, view), 0);
+    float rv = max(glm::dot(r, view), 0.0);
     float rvN = pow(rv, obj->mat_shineness);
 
     // diffuse
-    glm::vec3 diffuse = scene->light_diffuse * obj->mat_diffuse * nl / decay;
+    glm::vec3 diffuse = (scene->light_diffuse * obj->mat_diffuse) * nl / decay;
 
     // specular
     glm::vec3 specular = scene->light_specular * obj->mat_specular * rvN / decay;

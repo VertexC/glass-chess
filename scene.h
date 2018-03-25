@@ -99,7 +99,7 @@ void Scene::set_chess()
     float reflectance = 0.6;
     float refractance = 0.2;
 
-    glm::vec3 center = glm::vec3(0.0, -1, -1);
+    glm::vec3 center = glm::vec3(0.0, -0.75, -1.3);
     glm::vec3 point[3];
     int objectCount = 0;
 
