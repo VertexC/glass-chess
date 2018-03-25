@@ -106,6 +106,10 @@ glm::vec3 recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
 
     glm::vec3 color;
 
+    // for debug
+    bool reflect_on = true;
+    bool refract_on = true;
+
     if (obj == NULL)
     {
         color = scene->background_clr;
@@ -117,6 +121,13 @@ glm::vec3 recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
 
         color = phong(hit, view, surf_norm, obj);
         // std::cout << color.x << " " << color.y << " " << color.z << std::endl;
+        if (step > 0 && reflect_on)
+        {
+            glm::vec3 reflected_view = glm::normalize(glm::rotate(view, glm::radians(180.0f), surf_norm));
+            glm::vec3 reflected_color = recursive_ray_trace(hit, reflected_view, step - 1);
+
+            color += reflected_color * obj->reflectance;
+        }
     }
 
     return color;
@@ -157,7 +168,7 @@ void ray_trace()
             // You need to change this!!!
             //
 
-            ret_color = recursive_ray_trace(eye_pos, ray, 0);
+            ret_color = recursive_ray_trace(eye_pos, ray, step_max);
             //else ret_color = background_clr; // just background for now
 
             // Parallel rays can be cast instead using below
