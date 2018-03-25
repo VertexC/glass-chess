@@ -5,6 +5,7 @@
 #include <vector>
 #include "object.h"
 #include "triangle.h"
+#include "plane.h"
 void SMF_reader(const char *filepath, int *vertexNum, int *faceNum, glm::vec3 *&vertexes, int *&indexes);
 
 // global values
@@ -42,6 +43,7 @@ class Scene
     }
 
     void set_chess();
+    void set_board();
     Object *intersectScene(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit);
 };
 
@@ -82,6 +84,22 @@ Object *Scene::intersectScene(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
     return intersect_obj;
 }
 
+void Scene::set_board()
+{
+    glm::vec3 mat_ambient = glm::vec3(0.5, 0.5, 0.5);
+    glm::vec3 mat_diffuse = glm::vec3(0.5, 0.5, 0.5);
+    glm::vec3 mat_specular = glm::vec3(1.0, 1.0, 1.0);
+    float shineness = 16;
+    float reflectance = 0.6;
+    float refractance = 0.2;
+
+    glm::vec3 center = glm::vec3(0.0, -1.0, -1.0);
+    float gridSize = 1.0;
+
+    objectList.push_back(new Plane(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance,
+                                   center, gridSize));
+}
+
 void Scene::set_chess()
 {
     int vertexNum = 0;
@@ -101,7 +119,6 @@ void Scene::set_chess()
 
     glm::vec3 center = glm::vec3(0.0, -0.75, -1.3);
     glm::vec3 point[3];
-    int objectCount = 0;
 
     for (int i = 0; i < faceNum; i++)
     {

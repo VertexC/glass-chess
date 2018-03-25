@@ -57,9 +57,9 @@ glm::vec3 phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object *obj)
     // I = global_ambient + local_ambient + f_decay(diffuse + specular)
 
     // global ambient
-    glm::vec3 ga = scene->global_ambient * obj->mat_ambient;
+    glm::vec3 ga = scene->global_ambient * obj->getAmbient(q);
     // local ambient
-    glm::vec3 la = scene->light_ambient * obj->mat_ambient;
+    glm::vec3 la = scene->light_ambient * obj->getAmbient(q);
 
     // glm::vec3 to light
     glm::vec3 l = scene->light_position - q;
@@ -85,10 +85,10 @@ glm::vec3 phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object *obj)
     float rvN = pow(rv, obj->mat_shineness);
 
     // diffuse
-    glm::vec3 diffuse = (scene->light_diffuse * obj->mat_diffuse) * nl / decay;
+    glm::vec3 diffuse = (scene->light_diffuse * obj->getDiffuse(q)) * nl / decay;
 
     // specular
-    glm::vec3 specular = scene->light_specular * obj->mat_specular * rvN / decay;
+    glm::vec3 specular = scene->light_specular * obj->getSpecular(q) * rvN / decay;
 
     glm::vec3 color = ga + la + diffuse + specular;
 

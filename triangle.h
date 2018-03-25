@@ -24,11 +24,28 @@ class Triangle : public Object
     float intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit);
 
     glm::vec3 getNormal(glm::vec3 point);
+
+    glm::vec3 getAmbient(glm::vec3 point);
+    glm::vec3 getDiffuse(glm::vec3 point);
+    glm::vec3 getSpecular(glm::vec3 point);
 };
 
 glm::vec3 Triangle::getNormal(glm::vec3 point)
 {
     return normal;
+}
+
+glm::vec3 Triangle::getAmbient(glm::vec3 point)
+{
+    return mat_ambient;
+}
+glm::vec3 Triangle::getDiffuse(glm::vec3 point)
+{
+    return mat_diffuse;
+}
+glm::vec3 Triangle::getSpecular(glm::vec3 point)
+{
+    return mat_specular;    
 }
 
 float Triangle::intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)

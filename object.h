@@ -27,6 +27,12 @@ public:
   virtual float intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit) = 0;
 
   virtual glm::vec3 getNormal(glm::vec3 point) = 0;
+
+  virtual glm::vec3 getAmbient(glm::vec3 point) = 0;
+
+  virtual glm::vec3 getDiffuse(glm::vec3 point) = 0;
+
+  virtual glm::vec3 getSpecular(glm::vec3 point) = 0;
 };
 
 #endif

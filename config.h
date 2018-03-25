@@ -18,7 +18,7 @@
 enum objType
 {
     TRIANGLE = 0,
-    BOARD = 1
+    PLANE = 1
 };
 
 const float precision = 0.01;

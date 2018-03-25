@@ -163,8 +163,8 @@ raycast.o: raycast.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/5/bits/locale_facets.tcc \
  /usr/include/c++/5/bits/basic_ios.tcc \
  /usr/include/c++/5/bits/ostream.tcc /usr/include/c++/5/istream \
- /usr/include/c++/5/bits/istream.tcc shader.h /usr/include/c++/5/fstream \
- /usr/include/c++/5/bits/codecvt.h \
+ /usr/include/c++/5/bits/istream.tcc plane.h shader.h \
+ /usr/include/c++/5/fstream /usr/include/c++/5/bits/codecvt.h \
  /usr/include/x86_64-linux-gnu/c++/5/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/5/bits/c++io.h \
  /usr/include/c++/5/bits/fstream.tcc /usr/include/c++/5/sstream \
