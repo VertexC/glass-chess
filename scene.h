@@ -11,7 +11,7 @@ void SMF_reader(const char *filepath, int *vertexNum, int *faceNum, glm::vec3 *&
 class Scene
 {
   public:
-    std::vector<Object> objectList;
+    std::vector<Object *> objectList;
     glm::vec3 light_position;
     glm::vec3 light_ambient;
     glm::vec3 light_diffuse;
@@ -40,8 +40,47 @@ class Scene
 
         objectCount = 0;
     }
+
     void set_chess();
+    Object *intersectScene(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit);
 };
+
+Object *Scene::intersectScene(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
+{
+    glm::vec3 intersect_hit;
+    Object *intersect_obj = NULL;
+    float min_distance = inf;
+
+    bool is_intersect = false;
+
+    for (int i = 0; i < objectList.size(); i++)
+    {
+
+        glm::vec3 temp_hit;
+        float temp_distance;
+
+        temp_distance = objectList[i]->intersect(eye, ray, &temp_hit);
+        if (temp_distance > precision)
+        {
+            if (temp_distance < min_distance)
+            {
+                min_distance = temp_distance;
+                intersect_obj = objectList[i];
+                intersect_hit = temp_hit;
+                is_intersect = true;
+            }
+        }
+    }
+
+    if (is_intersect)
+    {
+        hit->x = intersect_hit.x;
+        hit->y = intersect_hit.y;
+        hit->z = intersect_hit.z;
+    }
+
+    return intersect_obj;
+}
 
 void Scene::set_chess()
 {
@@ -52,7 +91,6 @@ void Scene::set_chess()
     int *indexes = NULL;
 
     SMF_reader("./chess_pieces/chess_piece.smf", &vertexNum, &faceNum, vertexes, indexes);
-    printf("%d %d\n", vertexes, indexes);
 
     glm::vec3 mat_ambient = glm::vec3(0.75, 0.5, 0.5);
     glm::vec3 mat_diffuse = glm::vec3(0.1, 0.5, 0.5);
@@ -64,19 +102,18 @@ void Scene::set_chess()
     glm::vec3 center = glm::vec3(0.0, -1, -1);
     glm::vec3 point[3];
     int objectCount = 0;
-    printf("here?\n");
 
     for (int i = 0; i < faceNum; i++)
     {
         for (int j = 0; j < 3; j++)
         {
             int index = indexes[i * 3 + j];
-            printf("index:%d\n", index);
-            point[j] = glm::vec3(vertexes[index].x - center.x, vertexes[index].y - center.y, vertexes[index].z - center.z);
+            point[j] = glm::vec3(vertexes[index].x + center.x, vertexes[index].y + center.y, vertexes[index].z + center.z);
         }
-        objectList.push_back(Triangle(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance,
-                                      point[0], point[1], point[2]));
+        objectList.push_back(new Triangle(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance,
+                                          point[0], point[1], point[2]));
     }
+    printf("sizeof object in scene:%d", objectList.size());
 }
 
 void SMF_reader(const char *filepath, int *vertexNum, int *faceNum, glm::vec3 *&vertexes, int *&indexes)
@@ -121,8 +158,6 @@ void SMF_reader(const char *filepath, int *vertexNum, int *faceNum, glm::vec3 *&
         indexes[i * 3 + 1] = b - 1;
         indexes[i * 3 + 2] = c - 1;
     }
-    printf("%d %d\n", vertexes, indexes);
-
 
     printf("read SMF done\n");
     fclose(fileptr);

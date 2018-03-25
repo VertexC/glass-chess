@@ -9,7 +9,7 @@
 
 #include "scene.h"
 #include "shader.h"
-
+#include "trace.h"
 #include "object.h"
 #include "util.h"
 
@@ -18,9 +18,7 @@ int win_width = WIN_WIDTH;
 int win_height = WIN_HEIGHT;
 
 glm::vec3 frame[WIN_HEIGHT][WIN_WIDTH];   
-// array for the final image 
-// This gets displayed in glut window via texture mapping, 
-// you can also save a copy as bitmap by pressing 's'
+
 
 float image_width = IMAGE_WIDTH;
 float image_height = (float(WIN_HEIGHT) / float(WIN_WIDTH)) * IMAGE_WIDTH;
@@ -55,7 +53,6 @@ const int NumPoints = 6;
 
 //----------------------------------------------------------------------------
 
-#define __NO_DISPLAY__
 
 void init()
 {
@@ -153,9 +150,7 @@ void display( void )
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_CULL_FACE);
 	
-	#ifndef __NO_DISPLAY__
 	glDrawArrays( GL_TRIANGLES, 0, NumPoints );
-	#endif
 
 	glutPostRedisplay();
 
@@ -218,17 +213,17 @@ int main( int argc, char **argv )
 
 
 	//printf("object Count : %d\n",objectCount);
-    Scene scene = Scene();
-	scene.set_chess();
+    scene = new Scene();
+	scene->set_chess();
 
 	//printObjects();
 
 	// ray trace the scene now
 	// we have used so many global variables and this function is
 	// happy to carry no parameters	
-	// printf("Rendering scene using my fantastic ray tracer ...\n");
-	// ray_trace();
-	// printf("After ray trace\n");
+	printf("Rendering scene using my fantastic ray tracer ...\n");
+	ray_trace();
+	printf("After ray trace\n");
 
 	// we want to make sure that intensity values are normalized
 	histogram_normalization();
@@ -240,9 +235,7 @@ int main( int argc, char **argv )
 	glutCreateWindow( "Ray tracing" );
 	glewInit();
 
-	#ifndef __NO_DISPLAY__
 	init();
-	#endif
 	printf("After init\n");
 
 	glutDisplayFunc( display );

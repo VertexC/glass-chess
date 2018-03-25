@@ -1,4 +1,4 @@
-	#! /usr/bin/make
+#! /usr/bin/make
 
 # Generic Makefile that should work with any program you're going to compile.
 # Any complaints should be directed at honghual@sfu.ca
@@ -15,7 +15,7 @@
 #   LIBDIR is where the library object files can be found
 INCLUDEDIR=/usr/include/
 LIBDIR=/usr/lib
-
+# EXTRALIBDIR=./dep/
 # If you have more source files add them here 
 SOURCE= raycast.cpp
 
@@ -25,34 +25,33 @@ CC= g++
 # The flags that will be used to compile the object file.
 # If you want to debug your program,
 # you can add '-g' on the following line
-#CFLAGS= -O3 -g -Wall -pedantic -DGL_GLEXT_PROTOTYPES
-# remove '-D__NO_DISPLAY__' if want to have display
-#CFLAGS= -O3 -g -DGL_GLEXT_PROTOTYPES -D__NO_DISPLAY__
-CFLAGS= -O3 -g -DGL_GLEXT_PROTOTYPES
+CFLAGS= -std=c++0x -O3 -g -Wall -pedantic -DGL_GLEXT_PROTOTYPES 
 
 # The name of the final executable 
-EXECUTABLE= raycast
+EXECUTABLE=raycast
 
 # The basic library we are using add the other libraries you want to link
 # to your program here 
 
 # Linux (default)
-LDFLAGS = -lGL -lglut -lGLEW -lXext -lX11 -lm 
+LDFLAGS = -lGL -lglut -lGLEW -lXext -lX11 -lm
 
 # If you have other library files in a different directory add them here 
-INCLUDEFLAG= -I. -I$(INCLUDEDIR) -I./include/ -I./dep/
+INCLUDEFLAG= -I. -I$(INCLUDEDIR) -Idep/ 
 LIBFLAG= -L$(LIBDIR)
-
+# EXTRALIBFLAG = -L$(EXTRALIBDIR)
 # Don't touch this one if you don't know what you're doing 
 OBJECT= $(SOURCE:.cpp=.o)
-
+# EXTRAOBJECT= $(SOURCE:.cpp=.o)
 # Don't touch any of these either if you don't know what you're doing 
-#all: $(OBJECT) depend
-all: $(OBJECT) 
-	$(CC) $(CFLAGS) $(INCLUDEFLAG) $(LIBFLAG)  $(OBJECT) -o $(EXECUTABLE) $(LDFLAGS)
+all: $(OBJECT) depend
+	$(CC) $(CFLAGS) $(INCLUDEFLAG) $(LIBFLAG) $(OBJECT) -o $(EXECUTABLE) $(LDFLAGS) 
 
-#depend:
-#	$(CC) -M $(SOURCE) > depend
+myscene: $(OBJECT) depend
+	$(CC) $(CFLAGS) $(INCLUDEFLAG) $(LIBFLAG) $(OBJECT) -o $(EXECUTABLE)  $(LDFLAGS) 
+
+depend:
+	$(CC) -M $(SOURCE) $(INCLUDEFLAG) > depend
 
 $(OBJECT):
 	$(CC) $(CFLAGS) $(INCLUDEFLAG) -c -o $@ $(@:.o=.cpp)
@@ -63,4 +62,4 @@ clean_object:
 clean:
 	rm -f $(OBJECT) depend $(EXECUTABLE)
 
-#include depend
+include depend

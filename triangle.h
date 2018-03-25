@@ -3,7 +3,7 @@
 
 #include "object.h"
 #include "config.h"
-
+#include "iostream"
 class Triangle : public Object
 {
   public:
@@ -22,20 +22,25 @@ class Triangle : public Object
     }
 
     float intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit);
+
+    glm::vec3 getNormal(glm::vec3 point);
 };
+
+glm::vec3 Triangle::getNormal(glm::vec3 point)
+{
+    return normal;
+}
 
 float Triangle::intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
 {
 
     // find the intersection point on triangle
-
     /**
      * P on plane, A = vertex[0]
      * AP * normal = 0
      * eye + k*ray = P
      * => k = [(A - eye) * n] / [ray * n]
     */
-
     ray = glm::normalize(ray);
 
     float divisor = glm::dot(ray, normal);
@@ -45,6 +50,7 @@ float Triangle::intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
         return -1.0;
 
     float k = dividend / divisor;
+
     if (k < 0)
         return -1.0;
 
@@ -60,6 +66,7 @@ float Triangle::intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
 
     for (int i = 0; i < 3; i++)
     {
+        // std::cout << vertexes[i].x << "=" << vertexes[i].y << "=" << vertexes[i].z << std::endl;
         glm::vec3 edge = vertexes[(i + 1) % 3] - vertexes[i];
         glm::vec3 vp = intersectPoint - vertexes[i];
 
@@ -72,7 +79,6 @@ float Triangle::intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
     hit->x = intersectPoint.x;
     hit->y = intersectPoint.y;
     hit->z = intersectPoint.z;
-
     return k;
 }
 
