@@ -5,7 +5,7 @@
 #include <vector>
 #include "object.h"
 #include "triangle.h"
-void SMF_reader(const char *filepath, int *vertexNum, int *faceNum);
+void SMF_reader(const char *filepath, int *vertexNum, int *faceNum, glm::vec3 *&vertexes, int *&indexes);
 
 // global values
 class Scene
@@ -43,18 +43,16 @@ class Scene
     void set_chess();
 };
 
-glm::vec3 *vertexes = NULL;
-int *indices = NULL;
-
 void Scene::set_chess()
 {
     int vertexNum = 0;
     int faceNum = 0;
 
-    printf("here?%d\n", sizeof(indices));
+    glm::vec3 *vertexes = NULL;
+    int *indexes = NULL;
 
-    SMF_reader("./chess_pieces/chess_piece.smf", &vertexNum, &faceNum);
-    printf("%d %d\n", vertexNum, faceNum);
+    SMF_reader("./chess_pieces/chess_piece.smf", &vertexNum, &faceNum, vertexes, indexes);
+    printf("%d %d\n", vertexes, indexes);
 
     glm::vec3 mat_ambient = glm::vec3(0.75, 0.5, 0.5);
     glm::vec3 mat_diffuse = glm::vec3(0.1, 0.5, 0.5);
@@ -66,13 +64,13 @@ void Scene::set_chess()
     glm::vec3 center = glm::vec3(0.0, -1, -1);
     glm::vec3 point[3];
     int objectCount = 0;
-    printf("here?%d\n", sizeof(indices));
+    printf("here?\n");
 
     for (int i = 0; i < faceNum; i++)
     {
         for (int j = 0; j < 3; j++)
         {
-            int index = indices[i * 3 + j];
+            int index = indexes[i * 3 + j];
             printf("index:%d\n", index);
             point[j] = glm::vec3(vertexes[index].x - center.x, vertexes[index].y - center.y, vertexes[index].z - center.z);
         }
@@ -81,7 +79,7 @@ void Scene::set_chess()
     }
 }
 
-void SMF_reader(const char *filepath, int *vertexNum, int *faceNum)
+void SMF_reader(const char *filepath, int *vertexNum, int *faceNum, glm::vec3 *&vertexes, int *&indexes)
 {
     FILE *fileptr = NULL;
     fileptr = fopen(filepath, "r");
@@ -100,7 +98,6 @@ void SMF_reader(const char *filepath, int *vertexNum, int *faceNum)
     }
 
     vertexes = new glm::vec3[*vertexNum * 3];
-    
     for (int i = 0; i < *vertexNum; i++)
         if (fscanf(fileptr, " v %f %f %f", &(vertexes[i].x), &(vertexes[i].y), &(vertexes[i].z)) < 3)
         {
@@ -109,22 +106,24 @@ void SMF_reader(const char *filepath, int *vertexNum, int *faceNum)
             exit(1);
         }
 
-    indices = new int[*faceNum * 3];
+    indexes = new int[*faceNum * 3];
 
     for (int i = 0; i < *faceNum; i++)
     {
         int a, b, c;
         if (fscanf(fileptr, " f %d %d %d", &a, &b, &c) < 3)
         {
-            printf("Error: Cannot read the indices\n");
+            printf("Error: Cannot read the indexes\n");
             fclose(fileptr);
             exit(1);
         }
-        indices[i * 3] = a - 1;
-        indices[i * 3 + 1] = b - 1;
-        indices[i * 3 + 2] = c - 1;
+        indexes[i * 3] = a - 1;
+        indexes[i * 3 + 1] = b - 1;
+        indexes[i * 3 + 2] = c - 1;
     }
-    printf("%d %d\n", *vertexNum, *faceNum);
+    printf("%d %d\n", vertexes, indexes);
+
+
     printf("read SMF done\n");
     fclose(fileptr);
 }
