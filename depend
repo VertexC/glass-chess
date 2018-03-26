@@ -127,7 +127,7 @@ raycast.o: raycast.cpp /usr/include/stdc-predef.h \
  /usr/include/stdint.h /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/GL/glu.h /usr/include/GL/gl.h /usr/include/GL/freeglut.h \
  /usr/include/GL/freeglut_std.h /usr/include/GL/freeglut_ext.h \
- /usr/include/GL/freeglut_ext.h scene.h object.h triangle.h \
+ /usr/include/GL/freeglut_ext.h scene.h object.h \
  /usr/include/c++/5/iostream /usr/include/c++/5/ostream \
  /usr/include/c++/5/ios /usr/include/c++/5/iosfwd \
  /usr/include/c++/5/bits/stringfwd.h /usr/include/c++/5/bits/postypes.h \
@@ -163,7 +163,7 @@ raycast.o: raycast.cpp /usr/include/stdc-predef.h \
  /usr/include/c++/5/bits/locale_facets.tcc \
  /usr/include/c++/5/bits/basic_ios.tcc \
  /usr/include/c++/5/bits/ostream.tcc /usr/include/c++/5/istream \
- /usr/include/c++/5/bits/istream.tcc plane.h shader.h \
+ /usr/include/c++/5/bits/istream.tcc triangle.h plane.h shader.h \
  /usr/include/c++/5/fstream /usr/include/c++/5/bits/codecvt.h \
  /usr/include/x86_64-linux-gnu/c++/5/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/5/bits/c++io.h \

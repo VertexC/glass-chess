@@ -10,9 +10,9 @@ class Triangle : public Object
     glm::vec3 vertexes[3];
     glm::vec3 normal;
 
-    Triangle(int id, glm::vec3 amb, glm::vec3 dif, glm::vec3 spe, float shine, float refl, float refr,
+    Triangle(int id, glm::vec3 amb, glm::vec3 dif, glm::vec3 spe, float shine, float refl, float refr, float factor,
              glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
-        : Object(id, amb, dif, spe, shine, refl, refr)
+        : Object(id, amb, dif, spe, shine, refl, refr, factor)
     {
         vertexes[0] = p0;
         vertexes[1] = p1;

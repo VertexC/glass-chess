@@ -10,9 +10,9 @@ class Plane : public Object
     glm::vec3 center;
     glm::vec3 normal;
     float gridSize;
-    Plane(int id, glm::vec3 amb, glm::vec3 dif, glm::vec3 spe, float shine, float refl, float refr,
+    Plane(int id, glm::vec3 amb, glm::vec3 dif, glm::vec3 spe, float shine, float refl, float refr, float factor,
           glm::vec3 cen, float size)
-        : Object(id, amb, dif, spe, shine, refl, refr)
+        : Object(id, amb, dif, spe, shine, refl, refr, factor)
     {
         center = cen;
         gridSize = size;
@@ -78,9 +78,9 @@ float Plane::intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
         return -1.0;
     }
 
-    float k = center.y / ray.y;
+    float k = (center.y - eye.y) / ray.y;
 
-    if (k < 0)
+    if (k < precision)
     {
         return -1.0;
     }

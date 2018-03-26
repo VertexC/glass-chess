@@ -92,11 +92,11 @@ void Scene::set_board()
     float shineness = 16;
     float reflectance = 0.6;
     float refractance = 0.2;
-
+    float factor = 1.5;
     glm::vec3 center = glm::vec3(0.0, -1.0, -1.0);
     float gridSize = 1.0;
 
-    objectList.push_back(new Plane(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance,
+    objectList.push_back(new Plane(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor,
                                    center, gridSize));
 }
 
@@ -116,7 +116,7 @@ void Scene::set_chess()
     float shineness = 40;
     float reflectance = 0.6;
     float refractance = 0.2;
-
+    float factor = 1.5;
     glm::vec3 center = glm::vec3(0.0, -0.75, -1.3);
     glm::vec3 point[3];
 
@@ -127,7 +127,7 @@ void Scene::set_chess()
             int index = indexes[i * 3 + j];
             point[j] = glm::vec3(vertexes[index].x + center.x, vertexes[index].y + center.y, vertexes[index].z + center.z);
         }
-        objectList.push_back(new Triangle(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance,
+        objectList.push_back(new Triangle(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor,
                                           point[0], point[1], point[2]));
     }
     printf("sizeof object in scene:%d", objectList.size());

@@ -107,7 +107,7 @@ glm::vec3 recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
     glm::vec3 color;
 
     // for debug
-    bool reflect_on = true;
+    bool reflect_on = false;
     bool refract_on = true;
 
     if (obj == NULL)
@@ -127,6 +127,14 @@ glm::vec3 recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
             glm::vec3 reflected_color = recursive_ray_trace(hit, reflected_view, step - 1);
 
             color += reflected_color * obj->reflectance;
+        }
+
+        if (step > 0 && refract_on)
+        {
+            glm::vec3 refracted_view = glm::normalize(obj->getRefract(ray, hit));
+            glm::vec3 refracted_color = recursive_ray_trace(hit, refracted_view, step - 1);
+
+            color += refracted_color * 1.0f;
         }
     }
 
