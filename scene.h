@@ -74,7 +74,7 @@ Object *Scene::intersectScene(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
         }
     }
 
-    if (is_intersect)
+    if (is_intersect && hit != NULL)
     {
         hit->x = intersect_hit.x;
         hit->y = intersect_hit.y;

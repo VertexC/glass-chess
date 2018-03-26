@@ -66,11 +66,16 @@ glm::vec3 phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object *obj)
     float distance = glm::length(l);
     l = glm::normalize(l);
 
-    // // shadow ray
-    // glm::vec3 color = {ga.r + la.r,
-    //                    ga.g + la.g,
-    //                    ga.b + la.b};
-    // return color;
+    // shadow ray
+    if (scene->intersectScene(q, l, NULL) != NULL)
+    {
+        // std::cout << "shadow" << std::endl;
+        glm::vec3 color = {ga.r + la.r,
+                           ga.g + la.g,
+                           ga.b + la.b};
+        // color = {1.0f, 0.0f, 0.0f};
+        return color;
+    }
 
     // parameter for diffuse and specular
     float decay = scene->decay_a + scene->decay_b * distance + scene->decay_c * pow(distance, 2);
@@ -107,7 +112,7 @@ glm::vec3 recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
     glm::vec3 color;
 
     // for debug
-    bool reflect_on = false;
+    bool reflect_on = true;
     bool refract_on = true;
 
     if (obj == NULL)

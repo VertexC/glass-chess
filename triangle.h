@@ -45,7 +45,7 @@ glm::vec3 Triangle::getDiffuse(glm::vec3 point)
 }
 glm::vec3 Triangle::getSpecular(glm::vec3 point)
 {
-    return mat_specular;    
+    return mat_specular;
 }
 
 float Triangle::intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
@@ -93,9 +93,13 @@ float Triangle::intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
         }
     }
     // set the hit point
-    hit->x = intersectPoint.x;
-    hit->y = intersectPoint.y;
-    hit->z = intersectPoint.z;
+    if (hit != NULL)
+    {
+        hit->x = intersectPoint.x;
+        hit->y = intersectPoint.y;
+        hit->z = intersectPoint.z;
+    }
+
     return k;
 }
 

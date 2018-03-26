@@ -57,7 +57,7 @@ glm::vec3 Plane::getLocalColor(glm::vec3 point)
     int i = abs(int(point.x - center.x)) / gridSize;
     int j = abs(int(point.z - center.z)) / gridSize;
     // std::cout << "return palne color!" << std::endl;
-    if ((i + j) % 2 == 0)
+    if ((i + j) % 2 == 1)
     {
         // black color
         return glm::vec3{0.0, 0.0, 0.0};
@@ -86,9 +86,13 @@ float Plane::intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
     }
 
     // set hit
-    hit->x = (eye + k * ray).x;
-    hit->y = (eye + k * ray).y;
-    hit->z = (eye + k * ray).z;
+    if (hit != NULL)
+    {
+        hit->x = (eye + k * ray).x;
+        hit->y = (eye + k * ray).y;
+        hit->z = (eye + k * ray).z;
+    }
+
     // std::cout << "hit the plane!" << std::endl;
     return k;
 }
