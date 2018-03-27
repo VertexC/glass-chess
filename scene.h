@@ -98,6 +98,10 @@ void Scene::set_board()
 
     objectList.push_back(new Plane(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor,
                                    center, gridSize));
+
+    // center = glm::vec3(0.0, -2.0, -1.0);
+    // objectList.push_back(new Plane(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor,
+    //                                center, gridSize));
 }
 
 void Scene::set_chess()
@@ -110,14 +114,14 @@ void Scene::set_chess()
 
     SMF_reader("./chess_pieces/chess_piece.smf", &vertexNum, &faceNum, vertexes, indexes);
 
-    glm::vec3 mat_ambient = glm::vec3(0.75, 0.5, 0.5);
-    glm::vec3 mat_diffuse = glm::vec3(0.1, 0.5, 0.5);
+    glm::vec3 mat_ambient = glm::vec3(0.5, 0.75, 0.5);
+    glm::vec3 mat_diffuse = glm::vec3(0.1, 0.5, 0.1);
     glm::vec3 mat_specular = glm::vec3(1.0, 1.0, 1.0);
     float shineness = 40;
     float reflectance = 0.6;
     float refractance = 0.2;
     float factor = 1.5;
-    glm::vec3 center = glm::vec3(0.0, -0.75, -1.3);
+    glm::vec3 center = glm::vec3(-0.5, -0.8, -2.0);
     glm::vec3 point[3];
 
     for (int i = 0; i < faceNum; i++)
@@ -130,7 +134,25 @@ void Scene::set_chess()
         objectList.push_back(new Triangle(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor,
                                           point[0], point[1], point[2]));
     }
-    printf("sizeof object in scene:%d", objectList.size());
+    // printf("sizeof object in scene:%d", objectList.size());
+
+    SMF_reader("./chess_pieces/bishop.smf", &vertexNum, &faceNum, vertexes, indexes);
+    float scale = 30.0f;
+    mat_ambient = glm::vec3(0.75, 0.5, 0.5);
+    mat_diffuse = glm::vec3(0.5, 0.1, 0.1);
+    mat_specular = glm::vec3(1.0, 1.0, 1.0);
+    center = glm::vec3(-0.5, -0.8, -2.8);
+    for (int i = 0; i < faceNum; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            int index = indexes[i * 3 + j];
+            point[j] = glm::rotate(glm::vec3(scale * vertexes[index].x + center.x, scale * vertexes[index].y + center.y, scale * vertexes[index].z + center.z),
+                                   glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        }
+        objectList.push_back(new Triangle(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor,
+                                          point[0], point[1], point[2]));
+    }
 }
 
 void SMF_reader(const char *filepath, int *vertexNum, int *faceNum, glm::vec3 *&vertexes, int *&indexes)
@@ -151,6 +173,8 @@ void SMF_reader(const char *filepath, int *vertexNum, int *faceNum, glm::vec3 *&
         exit(1);
     }
 
+    if (vertexes != NULL)
+        delete vertexes;
     vertexes = new glm::vec3[*vertexNum * 3];
     for (int i = 0; i < *vertexNum; i++)
         if (fscanf(fileptr, " v %f %f %f", &(vertexes[i].x), &(vertexes[i].y), &(vertexes[i].z)) < 3)
@@ -160,6 +184,8 @@ void SMF_reader(const char *filepath, int *vertexNum, int *faceNum, glm::vec3 *&
             exit(1);
         }
 
+    if (indexes != NULL)
+        delete indexes;
     indexes = new int[*faceNum * 3];
 
     for (int i = 0; i < *faceNum; i++)
