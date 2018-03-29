@@ -2,7 +2,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <vector>
-
+#include <pthread.h>
+#include <iostream>
 #include "global.h"
 #include "config.h"
 
@@ -49,8 +50,19 @@ int objectCount = 0; // number of objects
 // OpenGL
 const int NumPoints = 6;
 
-//----------------------------------------------------------------------------
+// Thread
+const int ThreadNum = 10;
 
+//----------------------------------------------------------------------------
+void *RayTrace(void *tracer)
+{
+	Tracer *mytracer = (Tracer *)tracer;
+	mytracer->ray_trace();
+	std::cout << "my tracer done" << std::endl;
+	pthread_exit(NULL);
+}
+
+//----------------------------------------------------------------------------
 void init()
 {
 	// Vertices of a square
@@ -231,9 +243,45 @@ int main(int argc, char **argv)
 	float y_grid_size = image_height / float(win_height);
 	float x_start = -0.5 * image_width;
 	float y_start = -0.5 * image_height;
-	Tracer *tracer = new Tracer(scene, (glm::vec3 **)frame, x_start, y_start, win_height, win_width,
-								x_grid_size, y_grid_size, image_plane, eye_pos, step_max, 0, 0, win_width, win_height);
-	tracer->ray_trace();
+
+	// create thread for parallel ray tracing
+	int indexes[ThreadNum];
+	pthread_t threads[ThreadNum];
+	int rc;
+	int widSize = win_width / ThreadNum;
+	for (int i = 0; i < ThreadNum; i++)
+	{
+		int x_l = i * widSize;
+		int x_r = i * widSize + widSize - 1;
+		if (i == ThreadNum - 1)
+		{
+			x_r = win_width;
+		}
+
+		indexes[i] = i;
+		std::cout << "Create Thread " << i << " for Ray-Tracing" << std::endl;
+		Tracer *tracer = new Tracer(scene, (glm::vec3 **)frame, x_start, y_start, win_height, win_width,
+									x_grid_size, y_grid_size, image_plane, eye_pos, step_max, x_l, 0, x_r, win_height);
+
+		rc = pthread_create(&threads[i], NULL, RayTrace, (void *)&(*tracer));
+		if (rc)
+		{
+			std::cout << "Error: Cannot create thread, " << rc << std::endl;
+			exit(-1);
+		}
+
+		// // one time debug
+		// break;
+	}
+	void *status;
+	for (int i = 0; i < ThreadNum; i++)
+	{
+		pthread_join(threads[i], &status);
+	}
+
+	// Tracer *tracer = new Tracer(scene, (glm::vec3 **)frame, x_start, y_start, win_height, win_width,
+	// 							x_grid_size, y_grid_size, image_plane, eye_pos, step_max, 0, 0, win_width, win_height);
+	// tracer->ray_trace();
 	printf("After ray trace\n");
 
 	// we want to make sure that intensity values are normalized
