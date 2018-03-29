@@ -231,7 +231,8 @@ int main(int argc, char **argv)
 	float y_grid_size = image_height / float(win_height);
 	float x_start = -0.5 * image_width;
 	float y_start = -0.5 * image_height;
-	Tracer* tracer = new Tracer(scene, (glm::vec3**)frame, x_start, y_start, win_height, win_width, x_grid_size, y_grid_size, image_plane, eye_pos, step_max);
+	Tracer *tracer = new Tracer(scene, (glm::vec3 **)frame, x_start, y_start, win_height, win_width,
+								x_grid_size, y_grid_size, image_plane, eye_pos, step_max, 0, 0, win_width, win_height);
 	tracer->ray_trace();
 	printf("After ray trace\n");
 

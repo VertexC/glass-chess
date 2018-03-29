@@ -7,13 +7,16 @@
 class Tracer
 {
   public:
-    Tracer(Scene *sce, glm::vec3 **fra, float x, float y, int h, int w, float x_grid, float y_grid, float z, glm::vec3 eye_pos, int max)
-        : scene(sce), frame(fra), x_start(x), y_start(y), height(h), width(w),
-          x_grid_size(x_grid), y_grid_size(y_grid), image_z(z), eye_pos(eye_pos), step_max(max){};
+    Tracer(Scene *sce, glm::vec3 **fra, float x_s, float y_s, int h, int w, float x_grid, float y_grid, float z, glm::vec3 eye_pos, int max,
+           int x_lb, int y_lb, int x_rt, int y_rt)
+        : scene(sce), frame(fra), x_start(x_s), y_start(y_s), height(h), width(w),
+          x_grid_size(x_grid), y_grid_size(y_grid), image_z(z), eye_pos(eye_pos), step_max(max),
+          x_lb(x_lb), y_lb(y_lb), x_rt(x_rt), y_rt(y_rt){};
 
     void setScene(Scene *myscene);
     void setFrame(glm::vec3 **frame);
     void ray_trace();
+    bool in_range(int x, int y);
     glm::vec3 phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object *obj);
     glm::vec3 recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step);
 
@@ -29,6 +32,11 @@ class Tracer
     float image_z;
     glm::vec3 eye_pos;
     int step_max;
+
+    int x_lb;
+    int y_lb;
+    int x_rt;
+    int y_rt;
 };
 
 void Tracer::setScene(Scene *myscene)
@@ -39,6 +47,11 @@ void Tracer::setScene(Scene *myscene)
 void Tracer::setFrame(glm::vec3 **myframe)
 {
     frame = myframe;
+}
+
+bool Tracer::in_range(int x, int y)
+{
+    return x >= x_lb && x <= x_rt && y >= y_lb && y <= y_rt;
 }
 
 float max(float a, float b)
@@ -149,18 +162,20 @@ void Tracer::ray_trace()
     {
         for (j = 0; j < width; j++)
         {
+            if (!in_range(i, j))
+            {
+                continue;
+            }
+            cur_pixel_pos.x = j * x_grid_size + x_start;
+            cur_pixel_pos.y = i * y_grid_size + y_start;
             ret_color = glm::vec3(0, 0, 0);
 
             glm::vec3 ray = cur_pixel_pos - eye_pos;
             ray = glm::normalize(ray);
 
             ret_color = recursive_ray_trace(eye_pos, ray, step_max);
-            *((glm::vec3*)frame + width*i + j) = ret_color;
-
-            cur_pixel_pos.x += x_grid_size;
+            *((glm::vec3 *)frame + width * i + j) = ret_color;
         }
-        cur_pixel_pos.y += y_grid_size;
-        cur_pixel_pos.x = x_start;
     }
 }
 
