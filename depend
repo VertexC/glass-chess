@@ -168,5 +168,5 @@ raycast.o: raycast.cpp /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/c++/5/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/5/bits/c++io.h \
  /usr/include/c++/5/bits/fstream.tcc /usr/include/c++/5/sstream \
- /usr/include/c++/5/bits/sstream.tcc trace.h /usr/include/GL/glut.h \
- util.h
+ /usr/include/c++/5/bits/sstream.tcc tracer.h util.h \
+ /usr/include/GL/glut.h

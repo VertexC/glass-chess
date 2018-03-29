@@ -2,6 +2,8 @@
 This is a bonus part of homework assignment of CMPT361/SFU
 
 
+
+
 #### Tricks
 
 ##### ptr allocatation inside function

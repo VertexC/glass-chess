@@ -1,49 +1,52 @@
-#ifndef _TRACE_H__
-#define _TRACE_H__
+#ifndef _TRACER_H__
+#define _TRACER_H__
 
-#include <cstdio>
-#include <GL/glut.h>
-#include <cmath>
-
-#include <cstdlib>
-#include <time.h>
-
-// GLM lib for matrix calculation
+#include "scene.h"
 #include "config.h"
 
-#include "global.h"
-#include "object.h"
+class Tracer
+{
+  public:
+    Tracer(Scene *sce, glm::vec3 **fra, float x, float y, int h, int w, float x_grid, float y_grid, float z, glm::vec3 eye_pos, int max)
+        : scene(sce), frame(fra), x_start(x), y_start(y), height(h), width(w),
+          x_grid_size(x_grid), y_grid_size(y_grid), image_z(z), eye_pos(eye_pos), step_max(max){};
 
-#include "iostream"
+    void setScene(Scene *myscene);
+    void setFrame(glm::vec3 **frame);
+    void ray_trace();
+    glm::vec3 phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object *obj);
+    glm::vec3 recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step);
 
-//
-// Global variables
-//
-extern int win_width;
-extern int win_height;
+  private:
+    Scene *scene;
+    glm::vec3 **frame;
+    float x_start;
+    float y_start;
+    int height;
+    int width;
+    float x_grid_size;
+    float y_grid_size;
+    float image_z;
+    glm::vec3 eye_pos;
+    int step_max;
+};
 
-extern glm::vec3 frame[WIN_HEIGHT][WIN_WIDTH];
+void Tracer::setScene(Scene *myscene)
+{
+    scene = myscene;
+}
 
-extern float image_width;
-extern float image_height;
-
-extern glm::vec3 eye_pos;
-extern float image_plane;
-
-extern glm::vec3 null_clr;
-
-extern Scene *scene;
-extern int step_max;
+void Tracer::setFrame(glm::vec3 **myframe)
+{
+    frame = myframe;
+}
 
 float max(float a, float b)
 {
     return a > b ? a : b;
 }
 
-/**
- * phong illumination
-*/
-glm::vec3 phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object *obj)
+glm::vec3 Tracer::phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object *obj)
 {
     // I = global_ambient + local_ambient + f_decay(diffuse + specular)
 
@@ -91,15 +94,10 @@ glm::vec3 phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object *obj)
     return color;
 }
 
-/**
- * recursive ray tracer
-*/
-glm::vec3 recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
+glm::vec3 Tracer::recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
 {
     glm::vec3 hit;
-
     Object *obj = scene->intersectScene(eye, ray, &hit);
-
     glm::vec3 color;
 
     // for debug
@@ -116,7 +114,6 @@ glm::vec3 recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
         glm::vec3 surf_norm = obj->getNormal(hit);
 
         color = phong(hit, view, surf_norm, obj);
-        // std::cout << color.x << " " << color.y << " " << color.z << std::endl;
         if (step > 0 && reflect_on)
         {
             glm::vec3 reflected_view = glm::normalize(glm::rotate(view, glm::radians(180.0f), surf_norm));
@@ -137,59 +134,31 @@ glm::vec3 recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
     return color;
 }
 
-/*********************************************************************
- * This function traverses all the pixels and cast rays. It calls the
- * recursive ray tracer and assign return color to frame
- *********************************************************************/
-void ray_trace()
+void Tracer::ray_trace()
 {
     int i, j;
-    float x_grid_size = image_width / float(win_width);
-    float y_grid_size = image_height / float(win_height);
-    float x_start = -0.5 * image_width;
-    float y_start = -0.5 * image_height;
     glm::vec3 ret_color;
     glm::vec3 cur_pixel_pos;
 
     // ray is cast through center of pixel
     cur_pixel_pos.x = x_start + 0.5 * x_grid_size;
     cur_pixel_pos.y = y_start + 0.5 * y_grid_size;
-    cur_pixel_pos.z = image_plane;
+    cur_pixel_pos.z = image_z;
 
-    for (i = 0; i < win_height; i++)
+    for (i = 0; i < height; i++)
     {
-        for (j = 0; j < win_width; j++)
+        for (j = 0; j < width; j++)
         {
             ret_color = glm::vec3(0, 0, 0);
 
-            //ray = get_vec(eye_pos, cur_pixel_pos);
             glm::vec3 ray = cur_pixel_pos - eye_pos;
-
-            //normalize(&ray);
             ray = glm::normalize(ray);
 
-            //
-            // You need to change this!!!
-            //
-
             ret_color = recursive_ray_trace(eye_pos, ray, step_max);
-            //else ret_color = background_clr; // just background for now
-
-            // Parallel rays can be cast instead using below
-            //
-            // ray.x = ray.y = 0;
-            // ray.z = -1.0;
-            // ret_color = recursive_ray_trace(cur_pixel_pos, ray, 1);
-
-            // Checkboard for testing
-            // glm::vec3 clr = glm::vec3(float(i/32), 0, float(j/32));
-            //ret_color = clr;
-
-            frame[i][j] = ret_color;
+            *((glm::vec3*)frame + width*i + j) = ret_color;
 
             cur_pixel_pos.x += x_grid_size;
         }
-
         cur_pixel_pos.y += y_grid_size;
         cur_pixel_pos.x = x_start;
     }

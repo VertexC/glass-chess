@@ -8,8 +8,9 @@
 
 #include "scene.h"
 #include "shader.h"
-#include "trace.h"
+// #include "trace.h"
 #include "object.h"
+#include "tracer.h"
 #include "util.h"
 
 int win_width = WIN_WIDTH;
@@ -225,7 +226,13 @@ int main(int argc, char **argv)
 	// we have used so many global variables and this function is
 	// happy to carry no parameters
 	printf("Rendering scene using my fantastic ray tracer ...\n");
-	ray_trace();
+	// ray_trace();
+	float x_grid_size = image_width / float(win_width);
+	float y_grid_size = image_height / float(win_height);
+	float x_start = -0.5 * image_width;
+	float y_start = -0.5 * image_height;
+	Tracer* tracer = new Tracer(scene, (glm::vec3**)frame, x_start, y_start, win_height, win_width, x_grid_size, y_grid_size, image_plane, eye_pos, step_max);
+	tracer->ray_trace();
 	printf("After ray trace\n");
 
 	// we want to make sure that intensity values are normalized
