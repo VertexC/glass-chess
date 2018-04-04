@@ -78,6 +78,7 @@ void Bvh::build()
 
     while (stack_ptr > 0)
     {
+        // std::cout << "bvh buld stack" << stack_ptr << std::endl;
         BvhEntry &entry(stack[--stack_ptr]);
         uint32_t start = entry.start;
         uint32_t end = entry.end;
@@ -152,11 +153,12 @@ void Bvh::build()
         stack[stack_ptr].start = mid;
         stack[stack_ptr].end = end;
         stack[stack_ptr].parent = node_num - 1;
-
+        stack_ptr++;
         // left child
         stack[stack_ptr].start = start;
         stack[stack_ptr].end = mid;
         stack[stack_ptr].parent = node_num - 1;
+        stack_ptr++;
     }
 
     // copy the result
@@ -172,7 +174,7 @@ struct BvhTraversal
 {
     uint32_t i;
     float min_hit;
-    BvhTraversal(){}
+    BvhTraversal() {}
     BvhTraversal(int _i, float _min_hit) : i(_i), min_hit(_min_hit) {}
 };
 
@@ -189,6 +191,8 @@ bool Bvh::getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect
 
     while (stack_ptr >= 0)
     {
+        // std::cout << "intersect at stack" << stack_ptr << std::endl;
+
         int ni = stack[stack_ptr].i;
         float near = stack[stack_ptr].min_hit;
         stack_ptr--;
@@ -203,6 +207,8 @@ bool Bvh::getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect
         {
             for (uint32_t i = 0; i < node.prim_num; i++)
             {
+                // std::cout << "here---" << stack_ptr << std::endl;
+
                 Object *object = (*objectList_ptr)[node.start + i];
 
                 bool is_hit = true;
@@ -226,10 +232,15 @@ bool Bvh::getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect
         }
         else
         {
+            // std::cout << "there---  " << stack_ptr << std::endl;
+
             float left_distance;
             float right_distance;
+            // std::cout << ni + 1 << " " << ni + node.offset << std::endl;
             bool left_hit = bvhTree[ni + 1].bbox.intersect(eye, ray, left_distance);
             bool right_hit = bvhTree[ni + node.offset].bbox.intersect(eye, ray, right_distance);
+
+            // std::cout << "there--  " << stack_ptr << std::endl;
 
             if (left_hit)
             {

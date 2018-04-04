@@ -120,6 +120,7 @@ glm::vec3 Tracer::recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
         bvh->getIntersection(eye, ray, &intersect_info);
         obj = intersect_info.object;
         hit = intersect_info.hit;
+        // std::cout << "get object!" << std::endl;
     }
     else
     {
