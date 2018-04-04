@@ -202,7 +202,7 @@ bool Bvh::getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect
         if (near > intersect_info->distance)
         {
             continue;
-            std::cout << "skip this node" << std::endl;
+            // std::cout << "skip this node" << std::endl;
             
         }
 
