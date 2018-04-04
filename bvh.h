@@ -97,6 +97,7 @@ void Bvh::build()
             object_box.expandToInclude((*objectList_ptr)[p]->getBBox());
             centroid_box.expandToInclude((*objectList_ptr)[p]->getCentroid());
         }
+        node.bbox = object_box;
 
         // if number of prims less than leaf size, let it be leaf
         if (prim_num <= leaf_size)
@@ -201,6 +202,7 @@ bool Bvh::getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect
         if (near > intersect_info->distance)
         {
             continue;
+            std::cout << "skip this node" << std::endl;
         }
 
         if (node.offset == 0)
@@ -234,24 +236,33 @@ bool Bvh::getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect
         {
             // std::cout << "there---  " << stack_ptr << std::endl;
 
-            float left_distance;
-            float right_distance;
+            float left_distance = 0;
+            float right_distance = 0;
             // std::cout << ni + 1 << " " << ni + node.offset << std::endl;
             bool left_hit = bvhTree[ni + 1].bbox.intersect(eye, ray, left_distance);
             bool right_hit = bvhTree[ni + node.offset].bbox.intersect(eye, ray, right_distance);
 
-            // std::cout << "there--  " << stack_ptr << std::endl;
+            // std::cout << left_distance << " " << right_distance << std::endl;
 
             if (left_hit)
             {
                 stack[++stack_ptr] = BvhTraversal(ni + 1, left_distance);
             }
+            else
+            {
+                // std::cout << "left not hit" << std::endl;
+            }
             if (right_hit)
             {
                 stack[++stack_ptr] = BvhTraversal(ni + node.offset, right_distance);
             }
+            else
+            {
+                // std::cout << "right not hit" << std::endl;
+            }
         }
     }
+
     if (intersect_info->object != NULL)
     {
         intersect_info->hit = eye + ray * intersect_info->distance;

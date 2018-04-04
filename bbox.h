@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "config.h"
+#include <iostream>
 struct BBox
 {
     glm::vec3 min_p, max_p, extent;
@@ -10,6 +11,8 @@ struct BBox
     BBox(glm::vec3 _min_p, glm::vec3 _max_p) : min_p(_min_p), max_p(_max_p)
     {
         extent = _max_p - _min_p;
+        // std::cout << min_p.x << " " << min_p.y << "" << min_p.z << std::endl;
+        // std::cout << max_p.x << " " << max_p.y << "" << max_p.z << std::endl;
     }
     BBox(glm::vec3 point) : min_p(point), max_p(point)
     {
@@ -21,6 +24,8 @@ struct BBox
         min_p = min_vec3(min_p, p);
         max_p = max_vec3(max_p, p);
         extent = max_p - min_p;
+        // std::cout << min_p.x << " " << min_p.y << "" << min_p.z << std::endl;
+        // std::cout << max_p.x << " " << max_p.y << "" << max_p.z << std::endl;
     }
 
     void expandToInclude(BBox box)
@@ -28,6 +33,8 @@ struct BBox
         min_p = min_vec3(min_p, box.min_p);
         max_p = max_vec3(max_p, box.max_p);
         extent = max_p - min_p;
+        // std::cout << min_p.x << " " << min_p.y << "" << min_p.z << std::endl;
+        // std::cout << max_p.x << " " << max_p.y << "" << max_p.z << std::endl;
     }
 
     uint32_t maxDimension()
@@ -42,6 +49,13 @@ struct BBox
 
     bool intersect(glm::vec3 eye, glm::vec3 ray, float &distance)
     {
+        // if (min_p.x != 0.0f)
+        // {
+        //     std::cout << min_p.x << " " << min_p.y << " " << min_p.z << std::endl;
+        //     std::cout << max_p.x << " " << max_p.y << " " << max_p.z << std::endl;
+        // }
+
+        ray = glm::normalize(ray);
         double t_xmin = (min_p.x - eye.x) / ray.x;
         double t_xmax = (max_p.x - eye.x) / ray.x;
         if (t_xmin > t_xmax)
@@ -64,7 +78,9 @@ struct BBox
 
         bool hit = t_zmax >= t_xymin && t_xymax >= t_zmin;
         if (hit)
+        {
             distance = std::max(t_xymin, t_zmin);
+        }
         return hit;
     }
 };
