@@ -92,16 +92,35 @@ glm::vec3 Tracer::phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object
     float distance = glm::length(l);
     l = glm::normalize(l);
 
-    // // shadow ray
-    // if (scene->intersectScene(q, l, NULL) != NULL)
-    // {
-    //     // std::cout << "shadow" << std::endl;
-    //     glm::vec3 color = {ga.r + la.r,
-    //                        ga.g + la.g,
-    //                        ga.b + la.b};
-    //     // color = {1.0f, 0.0f, 0.0f};
-    //     return color;
-    // }
+    // shadow ray
+    if (bvh == NULL)
+    {
+        int count = 0;
+        if (scene->intersectScene(q, l, NULL, &count) != NULL)
+        {
+            // std::cout << "shadow" << std::endl;
+            glm::vec3 color = {ga.r + la.r,
+                               ga.g + la.g,
+                               ga.b + la.b};
+            // color = {1.0f, 0.0f, 0.0f};
+            AddIntersectCount(count);
+            return color;
+        }
+    }
+    else
+    {
+        int count = 0;
+        IntersectInfo intersect_info;
+        if(bvh->getIntersection(q, l, &intersect_info, &count)){
+            // std::cout << "shadow" << std::endl;
+            glm::vec3 color = {ga.r + la.r,
+                               ga.g + la.g,
+                               ga.b + la.b};
+            // color = {1.0f, 0.0f, 0.0f};
+            AddIntersectCount(count);
+            return color;
+        }
+    }
 
     // parameter for diffuse and specular
     float decay = scene->decay_a + scene->decay_b * distance + scene->decay_c * pow(distance, 2);
