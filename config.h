@@ -24,4 +24,30 @@ enum objType
 const float precision = 0.01;
 const float inf = 10000000.0;
 
+float min_float(float a, float b)
+{
+    return a > b ? b : a;
+}
+
+float max_float(float a, float b)
+{
+    return  a > b ? a : b;
+}
+
+glm::vec3 min_vec3(glm::vec3 a, glm::vec3 b)
+{
+    return glm::vec3(
+        min_float(a.x, b.x),
+        min_float(a.y, b.y),
+        min_float(a.z, b.z));
+}
+
+glm::vec3 max_vec3(glm::vec3 a, glm::vec3 b)
+{
+    return glm::vec3(
+        max_float(a.x, b.x),
+        max_float(a.y, b.y),
+        max_float(a.z, b.z));
+}
+
 #endif

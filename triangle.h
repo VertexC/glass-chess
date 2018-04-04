@@ -4,6 +4,8 @@
 #include "object.h"
 #include "config.h"
 #include "iostream"
+#include "bbox.h"
+
 class Triangle : public Object
 {
   public:
@@ -28,6 +30,10 @@ class Triangle : public Object
     glm::vec3 getAmbient(glm::vec3 point);
     glm::vec3 getDiffuse(glm::vec3 point);
     glm::vec3 getSpecular(glm::vec3 point);
+
+    BBox getBBox();
+
+    glm::vec3 getCentroid();
 };
 
 glm::vec3 Triangle::getNormal(glm::vec3 point)
@@ -101,6 +107,19 @@ float Triangle::intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
     }
 
     return k;
+}
+
+BBox Triangle::getBBox()
+{
+    glm::vec3 min_p = min_vec3(min_vec3(vertexes[0], vertexes[1]), vertexes[2]);
+    glm::vec3 max_p = max_vec3(max_vec3(vertexes[0], vertexes[1]), vertexes[2]);
+    return BBox(min_p, max_p);
+}
+
+glm::vec3 Triangle::getCentroid()
+{
+    glm::vec3 centroid = vertexes[0] + vertexes[1] + vertexes[2];
+    return centroid / 3.0f;
 }
 
 #endif

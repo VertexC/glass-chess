@@ -13,6 +13,8 @@
 #include "object.h"
 #include "tracer.h"
 #include "util.h"
+#include "bvh.h"
+#include "bbox.h"
 
 int win_width = WIN_WIDTH;
 int win_height = WIN_HEIGHT;
@@ -204,84 +206,84 @@ int main(int argc, char **argv)
 	}
 
 	step_max = atoi(argv[1]); // maximum level of recursions
-
+	bool parallel_on = false;
 	// Optional arguments
 	for (int i = 2; i < argc; i++)
 	{
-		if (strcmp(argv[i], "+s") == 0)
-			shadow_on = 1;
-		if (strcmp(argv[i], "+l") == 0)
-			reflect_on = 1;
-		if (strcmp(argv[i], "+c") == 0)
-			chessboard_on = 1;
-		if (strcmp(argv[i], "+r") == 0)
-			refract_on = 1;
-		if (strcmp(argv[i], "+f") == 0)
-			difref_on = 1;
+		// if (strcmp(argv[i], "+s") == 0)
+		// 	shadow_on = 1;
+		// if (strcmp(argv[i], "+l") == 0)
+		// 	reflect_on = 1;
+		// if (strcmp(argv[i], "+c") == 0)
+		// 	chessboard_on = 1;
+		// if (strcmp(argv[i], "+r") == 0)
+		// 	refract_on = 1;
+		// if (strcmp(argv[i], "+f") == 0)
+		// 	difref_on = 1;
+		// if (strcmp(argv[i], "+p") == 0)
+		// 	antiAlias_on = 1;
+		// if (strcmp(argv[i], "+t") == 0)
+		// 	triangle_on = 1;
 		if (strcmp(argv[i], "+p") == 0)
-			antiAlias_on = 1;
-		if (strcmp(argv[i], "+t") == 0)
-			triangle_on = 1;
+			parallel_on = true;
 	}
 
-	// if(chessboard_on = 1)
-	// 	set_up_chessboard();
-
-	//printf("object Count : %d\n",objectCount);
 	scene = new Scene();
 	scene->set_chess();
-	scene->set_board();
-
-	//printObjects();
-
-	// ray trace the scene now
-	// we have used so many global variables and this function is
-	// happy to carry no parameters
+	// scene->set_board();
+	Bvh bvh(&(scene->objectList));
 	printf("Rendering scene using my fantastic ray tracer ...\n");
-	// ray_trace();
+
 	float x_grid_size = image_width / float(win_width);
 	float y_grid_size = image_height / float(win_height);
 	float x_start = -0.5 * image_width;
 	float y_start = -0.5 * image_height;
 
-	// create thread for parallel ray tracing
-	int indexes[ThreadNum];
-	pthread_t threads[ThreadNum];
-	int rc;
-	int widSize = win_width / ThreadNum;
-	for (int i = 0; i < ThreadNum; i++)
+	if (!parallel_on)
 	{
-		int x_l = i * widSize;
-		int x_r = i * widSize + widSize - 1;
-		if (i == ThreadNum - 1)
-		{
-			x_r = win_width;
-		}
-
-		indexes[i] = i;
-		std::cout << "Create Thread " << i << " for Ray-Tracing" << std::endl;
 		Tracer *tracer = new Tracer(scene, (glm::vec3 **)frame, x_start, y_start, win_height, win_width,
-									x_grid_size, y_grid_size, image_plane, eye_pos, step_max, x_l, 0, x_r, win_height);
-
-		rc = pthread_create(&threads[i], NULL, RayTrace, (void *)&(*tracer));
-		if (rc)
-		{
-			std::cout << "Error: Cannot create thread, " << rc << std::endl;
-			exit(-1);
-		}
-
-		// // one time debug
-		// break;
+									x_grid_size, y_grid_size, image_plane, eye_pos, step_max, 0, 0, win_width, win_height);
+		tracer->ray_trace();
 	}
-	void *status;
-	for (int i = 0; i < ThreadNum; i++)
+	else
 	{
-		pthread_join(threads[i], &status);
+
+		// create thread for parallel ray tracing
+		int indexes[ThreadNum];
+		pthread_t threads[ThreadNum];
+		int rc;
+		int widSize = win_width / ThreadNum;
+		for (int i = 0; i < ThreadNum; i++)
+		{
+			int x_l = i * widSize;
+			int x_r = i * widSize + widSize - 1;
+			if (i == ThreadNum - 1)
+			{
+				x_r = win_width;
+			}
+
+			indexes[i] = i;
+			std::cout << "Create Thread " << i << " for Ray-Tracing" << std::endl;
+			Tracer *tracer = new Tracer(scene, (glm::vec3 **)frame, x_start, y_start, win_height, win_width,
+										x_grid_size, y_grid_size, image_plane, eye_pos, step_max, x_l, 0, x_r, win_height);
+
+			rc = pthread_create(&threads[i], NULL, RayTrace, (void *)&(*tracer));
+			if (rc)
+			{
+				std::cout << "Error: Cannot create thread, " << rc << std::endl;
+				exit(-1);
+			}
+
+			// // one time debug
+			// break;
+		}
+		void *status;
+		for (int i = 0; i < ThreadNum; i++)
+		{
+			pthread_join(threads[i], &status);
+		}
 	}
 
-	// Tracer *tracer = new Tracer(scene, (glm::vec3 **)frame, x_start, y_start, win_height, win_width,
-	// 							x_grid_size, y_grid_size, image_plane, eye_pos, step_max, 0, 0, win_width, win_height);
-	// tracer->ray_trace();
 	printf("After ray trace\n");
 
 	// we want to make sure that intensity values are normalized

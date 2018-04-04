@@ -1,9 +1,11 @@
 #ifndef _PLANE_H__
 #define _PLANE_H__
 
+#include <iostream>
+
 #include "object.h"
 #include "config.h"
-#include "iostream"
+#include "bbox.h"
 class Plane : public Object
 {
   public:
@@ -28,6 +30,10 @@ class Plane : public Object
     glm::vec3 getSpecular(glm::vec3 point);
 
     glm::vec3 getLocalColor(glm::vec3 point);
+
+    BBox getBBox();
+
+    glm::vec3 getCentroid();
 };
 
 glm::vec3 Plane::getNormal(glm::vec3 point)
@@ -95,6 +101,16 @@ float Plane::intersect(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
 
     // std::cout << "hit the plane!" << std::endl;
     return k;
+}
+
+BBox Plane::getBBox()
+{
+    return BBox(center);
+}
+
+glm::vec3 Plane::getCentroid()
+{
+    return center;
 }
 
 #endif

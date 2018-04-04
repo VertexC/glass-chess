@@ -6,6 +6,10 @@
 #include "object.h"
 #include "triangle.h"
 #include "plane.h"
+#include "bbox.h"
+#include "bvh.h"
+#include <iostream>
+
 void SMF_reader(const char *filepath, int *vertexNum, int *faceNum, glm::vec3 *&vertexes, int *&indexes);
 
 // global values
@@ -96,8 +100,7 @@ void Scene::set_board()
     glm::vec3 center = glm::vec3(0.0, -1.0, -1.0);
     float gridSize = 1.0;
 
-    objectList.push_back(new Plane(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor,
-                                   center, gridSize));
+    objectList.push_back(new Plane(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor, center, gridSize));
 
     // center = glm::vec3(0.0, -2.0, -1.0);
     // objectList.push_back(new Plane(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor,
@@ -131,8 +134,7 @@ void Scene::set_chess()
             int index = indexes[i * 3 + j];
             point[j] = glm::vec3(vertexes[index].x + center.x, vertexes[index].y + center.y, vertexes[index].z + center.z);
         }
-        objectList.push_back(new Triangle(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor,
-                                          point[0], point[1], point[2]));
+        objectList.push_back(new Triangle(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor, point[0], point[1], point[2]));
     }
     // printf("sizeof object in scene:%d", objectList.size());
 
@@ -150,8 +152,7 @@ void Scene::set_chess()
             point[j] = glm::rotate(glm::vec3(scale * vertexes[index].x + center.x, scale * vertexes[index].y + center.y, scale * vertexes[index].z + center.z),
                                    glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         }
-        objectList.push_back(new Triangle(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor,
-                                          point[0], point[1], point[2]));
+        objectList.push_back(new Triangle(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor, point[0], point[1], point[2]));
     }
 }
 

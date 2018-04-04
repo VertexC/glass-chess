@@ -3,6 +3,8 @@
 
 #include "config.h"
 #include "iostream"
+#include "bbox.h"
+
 class Object
 {
 public:
@@ -37,6 +39,10 @@ public:
   virtual glm::vec3 getDiffuse(glm::vec3 point) = 0;
 
   virtual glm::vec3 getSpecular(glm::vec3 point) = 0;
+
+  virtual BBox getBBox() = 0;
+
+  virtual glm::vec3 getCentroid() = 0;
 };
 
 glm::vec3 Object::getRefract(glm::vec3 inRay, glm::vec3 point)
