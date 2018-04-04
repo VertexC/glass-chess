@@ -24,6 +24,8 @@ enum objType
 const float precision = 0.01;
 const float inf = 10000000.0;
 
+
+
 float min_float(float a, float b)
 {
     return a > b ? b : a;

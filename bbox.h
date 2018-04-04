@@ -39,6 +39,34 @@ struct BBox
             return 2;
         return result;
     }
+
+    bool intersect(glm::vec3 eye, glm::vec3 ray, float &distance)
+    {
+        double t_xmin = (min_p.x - eye.x) / ray.x;
+        double t_xmax = (max_p.x - eye.x) / ray.x;
+        if (t_xmin > t_xmax)
+            std::swap(t_xmin, t_xmax);
+
+        double t_ymin = (min_p.y - eye.y) / ray.y;
+        double t_ymax = (max_p.y - eye.y) / ray.y;
+        if (t_ymin > t_ymax)
+            std::swap(t_ymin, t_ymax);
+
+        if (t_xmax < t_ymin || t_ymax < t_xmin)
+            return false;
+        double t_xymin = std::max(t_xmin, t_ymin);
+        double t_xymax = std::min(t_xmax, t_ymax);
+
+        double t_zmin = (min_p.z - eye.z) / ray.z;
+        double t_zmax = (max_p.z - eye.z) / ray.z;
+        if (t_zmin > t_zmax)
+            std::swap(t_zmin, t_zmax);
+
+        bool hit = t_zmax >= t_xymin && t_xymax >= t_zmin;
+        if (hit)
+            distance = std::max(t_xymin, t_zmin);
+        return hit;
+    }
 };
 
 #endif

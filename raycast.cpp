@@ -33,7 +33,7 @@ float image_plane = -1.5;					  // image plane position
 
 // list of spheres in the scene
 Scene *scene = NULL;
-
+Bvh *bvh = NULL;
 // maximum level of recursions; you can use to control whether reflection
 // is implemented and for how many levels
 int step_max = 1;
@@ -207,6 +207,7 @@ int main(int argc, char **argv)
 
 	step_max = atoi(argv[1]); // maximum level of recursions
 	bool parallel_on = false;
+	bool bvh_on = false;
 	// Optional arguments
 	for (int i = 2; i < argc; i++)
 	{
@@ -226,12 +227,18 @@ int main(int argc, char **argv)
 		// 	triangle_on = 1;
 		if (strcmp(argv[i], "+p") == 0)
 			parallel_on = true;
+		if (strcmp(argv[i], "+b") == 0)
+			bvh_on = true;
 	}
 
 	scene = new Scene();
 	scene->set_chess();
 	// scene->set_board();
-	Bvh bvh(&(scene->objectList));
+	if (bvh_on)
+	{
+		bvh = new Bvh(&(scene->objectList));
+	}
+
 	printf("Rendering scene using my fantastic ray tracer ...\n");
 
 	float x_grid_size = image_width / float(win_width);
@@ -242,7 +249,8 @@ int main(int argc, char **argv)
 	if (!parallel_on)
 	{
 		Tracer *tracer = new Tracer(scene, (glm::vec3 **)frame, x_start, y_start, win_height, win_width,
-									x_grid_size, y_grid_size, image_plane, eye_pos, step_max, 0, 0, win_width, win_height);
+									x_grid_size, y_grid_size, image_plane, eye_pos, step_max, 0, 0, win_width, win_height,
+									bvh);
 		tracer->ray_trace();
 	}
 	else
@@ -265,7 +273,8 @@ int main(int argc, char **argv)
 			indexes[i] = i;
 			std::cout << "Create Thread " << i << " for Ray-Tracing" << std::endl;
 			Tracer *tracer = new Tracer(scene, (glm::vec3 **)frame, x_start, y_start, win_height, win_width,
-										x_grid_size, y_grid_size, image_plane, eye_pos, step_max, x_l, 0, x_r, win_height);
+										x_grid_size, y_grid_size, image_plane, eye_pos, step_max, x_l, 0, x_r, win_height,
+										bvh);
 
 			rc = pthread_create(&threads[i], NULL, RayTrace, (void *)&(*tracer));
 			if (rc)
@@ -302,6 +311,9 @@ int main(int argc, char **argv)
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);
 	glutMainLoop();
+
+	delete scene;
+	delete bvh;
 
 	return 0;
 }

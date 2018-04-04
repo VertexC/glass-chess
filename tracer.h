@@ -3,15 +3,16 @@
 
 #include "scene.h"
 #include "config.h"
-
+#include "intersectInfo.h"
+#include "bvh.h"
 class Tracer
 {
   public:
     Tracer(Scene *sce, glm::vec3 **fra, float x_s, float y_s, int h, int w, float x_grid, float y_grid, float z, glm::vec3 eye_pos, int max,
-           int x_lb, int y_lb, int x_rt, int y_rt)
+           int x_lb, int y_lb, int x_rt, int y_rt, Bvh *bvh)
         : scene(sce), frame(fra), x_start(x_s), y_start(y_s), height(h), width(w),
           x_grid_size(x_grid), y_grid_size(y_grid), image_z(z), eye_pos(eye_pos), step_max(max),
-          x_lb(x_lb), y_lb(y_lb), x_rt(x_rt), y_rt(y_rt){};
+          x_lb(x_lb), y_lb(y_lb), x_rt(x_rt), y_rt(y_rt), bvh(bvh){};
 
     void setScene(Scene *myscene);
     void setFrame(glm::vec3 **frame);
@@ -37,6 +38,7 @@ class Tracer
     int y_lb;
     int x_rt;
     int y_rt;
+    Bvh *bvh;
 };
 
 void Tracer::setScene(Scene *myscene)
@@ -110,7 +112,20 @@ glm::vec3 Tracer::phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object
 glm::vec3 Tracer::recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
 {
     glm::vec3 hit;
-    Object *obj = scene->intersectScene(eye, ray, &hit);
+    Object *obj;
+
+    if (bvh != NULL)
+    {
+        IntersectInfo intersect_info;
+        bvh->getIntersection(eye, ray, &intersect_info);
+        obj = intersect_info.object;
+        hit = intersect_info.hit;
+    }
+    else
+    {
+        obj = scene->intersectScene(eye, ray, &hit);
+    }
+
     glm::vec3 color;
 
     // for debug

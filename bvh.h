@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <stdint.h>
+#include "intersectInfo.h"
 
 struct BvhNode
 {
@@ -25,7 +26,7 @@ class Bvh
     Bvh(std::vector<Object *> *objectList_ptr, uint32_t leaf_size = 4);
     ~Bvh();
 
-    bool getIntersection();
+    bool getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect_info);
 };
 
 // struct BvhState
@@ -164,6 +165,91 @@ void Bvh::build()
     for (uint32_t i = 0; i < node_num; i++)
     {
         bvhTree[i] = nodeList[i];
+    }
+}
+
+struct BvhTraversal
+{
+    uint32_t i;
+    float min_hit;
+    BvhTraversal(){}
+    BvhTraversal(int _i, float _min_hit) : i(_i), min_hit(_min_hit) {}
+};
+
+bool Bvh::getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect_info)
+{
+    intersect_info->distance = inf;
+    intersect_info->object = NULL;
+
+    BvhTraversal stack[64];
+    int32_t stack_ptr = 0;
+    // the root node
+    stack[stack_ptr].i = 0;
+    stack[stack_ptr].min_hit = -inf;
+
+    while (stack_ptr >= 0)
+    {
+        int ni = stack[stack_ptr].i;
+        float near = stack[stack_ptr].min_hit;
+        stack_ptr--;
+        BvhNode &node(bvhTree[ni]);
+
+        if (near > intersect_info->distance)
+        {
+            continue;
+        }
+
+        if (node.offset == 0)
+        {
+            for (uint32_t i = 0; i < node.prim_num; i++)
+            {
+                Object *object = (*objectList_ptr)[node.start + i];
+
+                bool is_hit = true;
+                glm::vec3 hit;
+                float distance = object->intersect(eye, ray, &hit);
+                if (distance < 0)
+                {
+                    is_hit = false;
+                }
+
+                if (is_hit)
+                {
+                    if (distance < intersect_info->distance)
+                    {
+                        intersect_info->hit = hit;
+                        intersect_info->distance = distance;
+                        intersect_info->object = object;
+                    }
+                }
+            }
+        }
+        else
+        {
+            float left_distance;
+            float right_distance;
+            bool left_hit = bvhTree[ni + 1].bbox.intersect(eye, ray, left_distance);
+            bool right_hit = bvhTree[ni + node.offset].bbox.intersect(eye, ray, right_distance);
+
+            if (left_hit)
+            {
+                stack[++stack_ptr] = BvhTraversal(ni + 1, left_distance);
+            }
+            if (right_hit)
+            {
+                stack[++stack_ptr] = BvhTraversal(ni + node.offset, right_distance);
+            }
+        }
+    }
+    if (intersect_info->object != NULL)
+    {
+        intersect_info->hit = eye + ray * intersect_info->distance;
+
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 
