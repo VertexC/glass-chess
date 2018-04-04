@@ -111,7 +111,8 @@ glm::vec3 Tracer::phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object
     {
         int count = 0;
         IntersectInfo intersect_info;
-        if(bvh->getIntersection(q, l, &intersect_info, &count)){
+        if (bvh->getIntersection(q, l, &intersect_info, &count))
+        {
             // std::cout << "shadow" << std::endl;
             glm::vec3 color = {ga.r + la.r,
                                ga.g + la.g,
@@ -147,9 +148,19 @@ glm::vec3 Tracer::phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object
 
 glm::vec3 Tracer::recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
 {
-    glm::vec3 hit;
-    Object *obj;
+    // simply assume that board is placed belowed the triangles
+    glm::vec3 hit_board;
+    Object *obj_board = NULL;
+    float distance = scene->board->intersect(eye, ray, &hit_board);
 
+    if (distance > 0.0f)
+    {
+        obj_board = scene->board;
+    }
+
+    glm::vec3 hit;
+    Object *obj = NULL;
+    distance = 0;
     if (bvh != NULL)
     {
         IntersectInfo intersect_info;
@@ -165,6 +176,12 @@ glm::vec3 Tracer::recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
         int count = 0; // count for intersection
         obj = scene->intersectScene(eye, ray, &hit, &count);
         AddIntersectCount(count);
+    }
+
+    if (obj == NULL && obj_board != NULL)
+    {
+        obj = obj_board;
+        hit = hit_board;
     }
 
     glm::vec3 color;

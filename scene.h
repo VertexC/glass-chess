@@ -29,6 +29,7 @@ class Scene
     float decay_c;
     int objectCount;
 
+    Plane *board;
     Scene()
     {
         light_position = glm::vec3(-2.0, 5.0, 1.0);
@@ -44,6 +45,8 @@ class Scene
         decay_c = 0.0;
 
         objectCount = 0;
+
+        board = NULL;
     }
 
     void set_chess();
@@ -100,8 +103,8 @@ void Scene::set_board()
     glm::vec3 center = glm::vec3(0.0, -1.0, -1.0);
     float gridSize = 1.0;
 
-    objectList.push_back(new Plane(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor, center, gridSize));
-
+    // objectList.push_back(new Plane(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor, center, gridSize));
+    board = new Plane(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor, center, gridSize);
     // center = glm::vec3(0.0, -2.0, -1.0);
     // objectList.push_back(new Plane(++objectCount, mat_ambient, mat_diffuse, mat_specular, shineness, reflectance, refractance, factor,
     //                                center, gridSize));

@@ -233,7 +233,7 @@ int main(int argc, char **argv)
 
 	scene = new Scene();
 	scene->set_chess();
-	// scene->set_board();
+	scene->set_board();
 	if (bvh_on)
 	{
 		bvh = new Bvh(&(scene->objectList));
