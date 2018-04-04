@@ -203,6 +203,7 @@ bool Bvh::getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect
         {
             continue;
             std::cout << "skip this node" << std::endl;
+            
         }
 
         if (node.offset == 0)
@@ -216,7 +217,7 @@ bool Bvh::getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect
                 bool is_hit = true;
                 glm::vec3 hit;
                 float distance = object->intersect(eye, ray, &hit);
-                if (distance < 0)
+                if (distance < 0.2f)
                 {
                     is_hit = false;
                 }
@@ -256,9 +257,9 @@ bool Bvh::getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect
             {
                 stack[++stack_ptr] = BvhTraversal(ni + node.offset, right_distance);
             }
-            else
-            {
+            else{
                 // std::cout << "right not hit" << std::endl;
+                
             }
         }
     }
