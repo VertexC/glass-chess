@@ -26,7 +26,7 @@ class Bvh
     Bvh(std::vector<Object *> *objectList_ptr, uint32_t leaf_size = 4);
     ~Bvh();
 
-    bool getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect_info);
+    bool getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect_info, int *intersect_count);
 };
 
 // struct BvhState
@@ -178,7 +178,7 @@ struct BvhTraversal
     BvhTraversal(int _i, float _min_hit) : i(_i), min_hit(_min_hit) {}
 };
 
-bool Bvh::getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect_info)
+bool Bvh::getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect_info, int *intersect_count)
 {
     intersect_info->distance = inf;
     intersect_info->object = NULL;
@@ -207,7 +207,7 @@ bool Bvh::getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect
         {
             for (uint32_t i = 0; i < node.prim_num; i++)
             {
-                // std::cout << "here---" << stack_ptr << std::endl;
+                (*intersect_count)++;
 
                 Object *object = (*objectList_ptr)[node.start + i];
 

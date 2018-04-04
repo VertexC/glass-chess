@@ -48,10 +48,10 @@ class Scene
 
     void set_chess();
     void set_board();
-    Object *intersectScene(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit);
+    Object *intersectScene(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit, int *intersect_count);
 };
 
-Object *Scene::intersectScene(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
+Object *Scene::intersectScene(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit, int *intersect_count)
 {
     glm::vec3 intersect_hit;
     Object *intersect_obj = NULL;
@@ -61,7 +61,7 @@ Object *Scene::intersectScene(glm::vec3 eye, glm::vec3 ray, glm::vec3 *hit)
 
     for (int i = 0; i < objectList.size(); i++)
     {
-
+        (*intersect_count)++;
         glm::vec3 temp_hit;
         float temp_distance;
 

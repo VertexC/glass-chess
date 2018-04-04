@@ -15,7 +15,7 @@
 #include "util.h"
 #include "bvh.h"
 #include "bbox.h"
-
+#include "mytimer.h"
 int win_width = WIN_WIDTH;
 int win_height = WIN_HEIGHT;
 
@@ -239,7 +239,10 @@ int main(int argc, char **argv)
 		bvh = new Bvh(&(scene->objectList));
 	}
 
-	printf("Rendering scene using my fantastic ray tracer ...\n");
+	printf("Rendering scene using my fantastic ray tracer...\n");
+
+	// set Timer
+	Timer timer;
 
 	float x_grid_size = image_width / float(win_width);
 	float y_grid_size = image_height / float(win_height);
@@ -252,13 +255,15 @@ int main(int argc, char **argv)
 									x_grid_size, y_grid_size, image_plane, eye_pos, step_max, 0, 0, win_width, win_height,
 									bvh);
 		tracer->ray_trace();
+		printf("Num of intersection: %d\n", tracer->getIntersectCount());
 	}
 	else
 	{
-
+		int total_count = 0;
 		// create thread for parallel ray tracing
 		int indexes[ThreadNum];
 		pthread_t threads[ThreadNum];
+		Tracer *tracers[ThreadNum];
 		int rc;
 		int widSize = win_width / ThreadNum;
 		for (int i = 0; i < ThreadNum; i++)
@@ -272,29 +277,28 @@ int main(int argc, char **argv)
 
 			indexes[i] = i;
 			std::cout << "Create Thread " << i << " for Ray-Tracing" << std::endl;
-			Tracer *tracer = new Tracer(scene, (glm::vec3 **)frame, x_start, y_start, win_height, win_width,
-										x_grid_size, y_grid_size, image_plane, eye_pos, step_max, x_l, 0, x_r, win_height,
-										bvh);
+			tracers[i] = new Tracer(scene, (glm::vec3 **)frame, x_start, y_start, win_height, win_width,
+									x_grid_size, y_grid_size, image_plane, eye_pos, step_max, x_l, 0, x_r, win_height,
+									bvh);
 
-			rc = pthread_create(&threads[i], NULL, RayTrace, (void *)&(*tracer));
+			rc = pthread_create(&threads[i], NULL, RayTrace, (void *)&(*tracers[i]));
 			if (rc)
 			{
 				std::cout << "Error: Cannot create thread, " << rc << std::endl;
 				exit(-1);
 			}
-
-			// // one time debug
-			// break;
 		}
 		void *status;
 		for (int i = 0; i < ThreadNum; i++)
 		{
 			pthread_join(threads[i], &status);
+			total_count += tracers[i]->getIntersectCount();
 		}
+
+		printf("Num of intersection: %d\n", total_count);
 	}
-
-	printf("After ray trace\n");
-
+	double duration = timer.get_time();
+	printf("Ray Trace done in %lf s\n", duration);
 	// we want to make sure that intensity values are normalized
 	histogram_normalization();
 
@@ -306,7 +310,6 @@ int main(int argc, char **argv)
 	glewInit();
 
 	init();
-	printf("After init\n");
 
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);

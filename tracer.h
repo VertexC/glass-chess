@@ -12,16 +12,33 @@ class Tracer
            int x_lb, int y_lb, int x_rt, int y_rt, Bvh *bvh)
         : scene(sce), frame(fra), x_start(x_s), y_start(y_s), height(h), width(w),
           x_grid_size(x_grid), y_grid_size(y_grid), image_z(z), eye_pos(eye_pos), step_max(max),
-          x_lb(x_lb), y_lb(y_lb), x_rt(x_rt), y_rt(y_rt), bvh(bvh){};
+          x_lb(x_lb), y_lb(y_lb), x_rt(x_rt), y_rt(y_rt), bvh(bvh)
+    {
+        intersect_count = 0;
+    };
 
     void setScene(Scene *myscene);
     void setFrame(glm::vec3 **frame);
+    int getIntersectCount()
+    {
+        return intersect_count;
+    }
+    void setIntersectCount(int count)
+    {
+        intersect_count = count;
+    }
+    void AddIntersectCount(int count)
+    {
+        intersect_count += count;
+    }
     void ray_trace();
     bool in_range(int x, int y);
     glm::vec3 phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object *obj);
     glm::vec3 recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step);
 
   private:
+    int intersect_count;
+
     Scene *scene;
     glm::vec3 **frame;
     float x_start;
@@ -75,16 +92,16 @@ glm::vec3 Tracer::phong(glm::vec3 q, glm::vec3 view, glm::vec3 surf_norm, Object
     float distance = glm::length(l);
     l = glm::normalize(l);
 
-    // shadow ray
-    if (scene->intersectScene(q, l, NULL) != NULL)
-    {
-        // std::cout << "shadow" << std::endl;
-        glm::vec3 color = {ga.r + la.r,
-                           ga.g + la.g,
-                           ga.b + la.b};
-        // color = {1.0f, 0.0f, 0.0f};
-        return color;
-    }
+    // // shadow ray
+    // if (scene->intersectScene(q, l, NULL) != NULL)
+    // {
+    //     // std::cout << "shadow" << std::endl;
+    //     glm::vec3 color = {ga.r + la.r,
+    //                        ga.g + la.g,
+    //                        ga.b + la.b};
+    //     // color = {1.0f, 0.0f, 0.0f};
+    //     return color;
+    // }
 
     // parameter for diffuse and specular
     float decay = scene->decay_a + scene->decay_b * distance + scene->decay_c * pow(distance, 2);
@@ -117,14 +134,18 @@ glm::vec3 Tracer::recursive_ray_trace(glm::vec3 eye, glm::vec3 ray, int step)
     if (bvh != NULL)
     {
         IntersectInfo intersect_info;
-        bvh->getIntersection(eye, ray, &intersect_info);
+        int count = 0; // count for intersection
+        bvh->getIntersection(eye, ray, &intersect_info, &count);
         obj = intersect_info.object;
         hit = intersect_info.hit;
+        AddIntersectCount(count);
         // std::cout << "get object!" << std::endl;
     }
     else
     {
-        obj = scene->intersectScene(eye, ray, &hit);
+        int count = 0; // count for intersection
+        obj = scene->intersectScene(eye, ray, &hit, &count);
+        AddIntersectCount(count);
     }
 
     glm::vec3 color;
