@@ -29,14 +29,6 @@ class Bvh
     bool getIntersection(glm::vec3 eye, glm::vec3 ray, IntersectInfo *intersect_info, int *intersect_count);
 };
 
-// struct BvhState
-// {
-//     uint32_t i;
-//     float min_time;
-//     BvhState() {}
-//     BvhState(uint32_t _i, float _min_time) : i(_i), min_time(_min_time) {}
-// };
-
 Bvh::~Bvh()
 {
     delete bvhTree;
