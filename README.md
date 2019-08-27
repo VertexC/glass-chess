@@ -94,30 +94,6 @@ The general procedure are:
 
 [Bounding Volume Hierarchy](http://fileadmin.cs.lth.se/cs/Education/EDAN30/lectures/S2-bvh.pdf)
 
-#### Tricks
-
-##### ptr allocatation inside function
-For ptr of C++, in the following case
-```c++
-void A(){
-    int * p;
-    init(p)
-}
-void init(int * p){
-    p = new int[100];
-}
-```
-The p in A() will not have access to the newed array. As ptr p is copied to init(), so its value(adress of space it points to) will not change.
-The righy way is to use reference of ptr.
-```c++
-void A(){
-    int * p;
-    init(p)
-}
-void init(int * &p){
-    p = new int[100];
-}
-```
 
 ##### glm
 When deal with glm, it's better to declare value ends in *.*f, otherwise there could be error like
